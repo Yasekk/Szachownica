@@ -20,7 +20,8 @@ class BoardPart(Sprite):
 	def draw_part(self):
 		"""Wyświetlenie pola szachownicy"""
 		pygame.draw.rect(self.screen,self.color,self.rect)
-def create_board_and_pieces(settings,screen,chess_board,board_pieces):
+def create_board_and_pieces(settings,screen,chess_board,board_pieces,
+check_white,check_black):
 	"""Tworzenie szachownicy i figur, które mają przypisane początkowe 
 	pozycje"""
 	order_x=["A","B","C","D","E","F","G","H"]

@@ -70,6 +70,8 @@ class Pawn(Sprite):
 		self.picture)
 		#Określenie względnej pozycji każego elementu rysunku
 		set_position(self.picture)
+		#Aktualnie mozliwe ruchy danej figury
+		self.moves=None
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
 		figura"""
@@ -87,7 +89,7 @@ class Pawn(Sprite):
 		#Przypisanie położenia pola, na którym znajduje się figura
 		self.vertical=board_field.vertical
 		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board):
+	def check_move(self,chess_board,check_white,check_black):
 		"""Sprawdzanie pól dostępnych w danym ruchu"""
 		avialable_fields=[]
 		#Ruch dla pionów białych
@@ -105,8 +107,6 @@ class Pawn(Sprite):
 					elif (chess_field.vertical==self.vertical+2 and 
 					chess_field.horizontal==self.horizontal):
 						avialable_fields.append(chess_field.name)
-					#Zapamiętanie, że figura wykonała już pierwszy ruch
-					self.first_move=False
 			else:
 				#W drugim ruchu można poruszyć się o jedno wolne pole do
 				#przodu albo zbić przeciwną figurę po skosie
@@ -140,7 +140,6 @@ class Pawn(Sprite):
 					elif (chess_field.vertical==self.vertical-2 and 
 					chess_field.horizontal==self.horizontal):
 						avialable_fields.append(chess_field.name)
-					self.first_move=False
 			else:
 				#W drugim ruchu można poruszyć się o jedno wolne pole do
 				#przodu albo zbić przeciwną figurę po skosie
@@ -159,7 +158,25 @@ class Pawn(Sprite):
 					chess_field.occupied!=None and 
 					chess_field.occupied.type!=self.type):
 						avialable_fields.append(chess_field.name)	
-		return avialable_fields
+		self.moves=avialable_fields
+		#Dopisanie możliwych ruchów do listy pól potencjalnie 
+		#szachowanych
+		if self.type=="white":
+			for chess_field in chess_board:
+				if (chess_field.vertical==self.vertical+1 and 
+				chess_field.horizontal==self.horizontal+1):
+					check_white.append(chess_field.name)
+				elif (chess_field.vertical==self.vertical+1 and 
+				chess_field.horizontal==self.horizontal-1):
+					check_white.append(chess_field.name)
+		elif self.type=="black":
+			for chess_field in chess_board:
+				if (chess_field.vertical==self.vertical-1 and 
+				chess_field.horizontal==self.horizontal+1):
+					check_black.append(chess_field.name)
+				elif (chess_field.vertical==self.vertical-1 and 
+				chess_field.horizontal==self.horizontal-1):
+					check_black.append(chess_field.name)
 class Rook(Sprite):
 	"""Tworzenie wieży"""
 	def __init__(self,piece_type,screen,settings):
@@ -176,6 +193,8 @@ class Rook(Sprite):
 		self.picture)
 		#Określenie względnej pozycji każego elementu rysunku
 		set_position(self.picture)
+		#Aktualnie mozliwe ruchy danej figury
+		self.moves=None
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
 		figura"""
@@ -193,7 +212,7 @@ class Rook(Sprite):
 		#Przypisanie położenia pola, na którym znajduje się figura
 		self.vertical=board_field.vertical
 		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board):
+	def check_move(self,chess_board,check_white,check_black):
 		"""Sprawdzanie pól dostępnych w danym ruchu"""
 		avialable_fields=[]
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
@@ -316,7 +335,15 @@ class Rook(Sprite):
 					#ruchów
 					else:
 						avialable_fields.append(chess_field.name)
-		return avialable_fields
+		self.moves=avialable_fields
+		#Dopisanie możliwych ruchów do listy pól potencjalnie 
+		#szachowanych
+		if self.type=="white":
+			for move in self.moves:
+				check_white.append(move)
+		elif self.type=="black":
+			for move in self.moves:
+				check_black.append(move)
 class Knight(Sprite):
 	"""Tworzenie skoczka"""
 	def __init__(self,piece_type,screen,settings):
@@ -333,6 +360,8 @@ class Knight(Sprite):
 		self.picture)
 		#Określenie względnej pozycji każego elementu rysunku
 		set_position(self.picture)
+		#Aktualnie mozliwe ruchy danej figury
+		self.moves=None
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
 		figura"""
@@ -350,7 +379,7 @@ class Knight(Sprite):
 		#Przypisanie położenia pola, na którym znajduje się figura
 		self.vertical=board_field.vertical
 		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board):
+	def check_move(self,chess_board,check_white,check_black):
 		"""Sprawdzanie pól dostępnych w danym ruchu"""
 		avialable_fields=[]
 		#Sprawdzenie wszystkich możliwych ruchów konia dla pól które są
@@ -396,7 +425,15 @@ class Knight(Sprite):
 			(chess_field.occupied==None or 
 			self.type!=chess_field.occupied.type)):
 				avialable_fields.append(chess_field.name)
-		return avialable_fields
+		self.moves=avialable_fields
+		#Dopisanie możliwych ruchów do listy pól potencjalnie 
+		#szachowanych
+		if self.type=="white":
+			for move in self.moves:
+				check_white.append(move)
+		elif self.type=="black":
+			for move in self.moves:
+				check_black.append(move)
 class Bishop(Sprite):
 	"""Tworzenie gońca"""
 	def __init__(self,piece_type,screen,settings):
@@ -413,6 +450,8 @@ class Bishop(Sprite):
 		self.picture)
 		#Określenie względnej pozycji każego elementu rysunku
 		set_position(self.picture)
+		#Aktualnie mozliwe ruchy danej figury
+		self.moves=None
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
 		figura"""
@@ -430,7 +469,7 @@ class Bishop(Sprite):
 		#Przypisanie położenia pola, na którym znajduje się figura
 		self.vertical=board_field.vertical
 		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board):
+	def check_move(self,chess_board,check_white,check_black):
 		"""Sprawdzanie pól dostępnych w danym ruchu"""
 		avialable_fields=[]
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
@@ -555,7 +594,15 @@ class Bishop(Sprite):
 					#ruchów
 					else:
 						avialable_fields.append(chess_field.name)
-		return avialable_fields
+		self.moves=avialable_fields
+		#Dopisanie możliwych ruchów do listy pól potencjalnie 
+		#szachowanych
+		if self.type=="white":
+			for move in self.moves:
+				check_white.append(move)
+		elif self.type=="black":
+			for move in self.moves:
+				check_black.append(move)
 class Queen(Sprite):
 	"""Tworzenie królowej"""
 	def __init__(self,piece_type,screen,settings):
@@ -572,6 +619,8 @@ class Queen(Sprite):
 		self.picture)
 		#Określenie względnej pozycji każego elementu rysunku
 		set_position(self.picture)
+		#Aktualnie mozliwe ruchy danej figury
+		self.moves=None
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
 		figura"""
@@ -589,7 +638,7 @@ class Queen(Sprite):
 		#Przypisanie położenia pola, na którym znajduje się figura
 		self.vertical=board_field.vertical
 		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board):
+	def check_move(self,chess_board,check_white,check_black):
 		"""Sprawdzanie pól dostępnych w danym ruchu"""
 		avialable_fields=[]
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
@@ -832,7 +881,15 @@ class Queen(Sprite):
 					#ruchów
 					else:
 						avialable_fields.append(chess_field.name)
-		return avialable_fields
+		self.moves=avialable_fields
+		#Dopisanie możliwych ruchów do listy pól potencjalnie 
+		#szachowanych
+		if self.type=="white":
+			for move in self.moves:
+				check_white.append(move)
+		elif self.type=="black":
+			for move in self.moves:
+				check_black.append(move)
 class King(Sprite):
 	"""Tworzenie króla"""
 	def __init__(self,piece_type,screen,settings):
@@ -849,6 +906,8 @@ class King(Sprite):
 		self.picture)
 		#Określenie względnej pozycji każego elementu rysunku
 		set_position(self.picture)
+		#Aktualnie mozliwe ruchy danej figury
+		self.moves=None
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
 		figura"""
@@ -866,7 +925,7 @@ class King(Sprite):
 		#Przypisanie położenia pola, na którym znajduje się figura
 		self.vertical=board_field.vertical
 		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board):
+	def check_move(self,chess_board,check_white,check_black):
 		"""Sprawdzanie pól dostępnych w danym ruchu"""
 		avialable_fields=[]
 		#Sprawdzenie wszystkich ruchów dostępnych dla króla
@@ -910,5 +969,13 @@ class King(Sprite):
 			chess_field.vertical==self.vertical+1 and 
 			(chess_field.occupied==None or 
 			self.type!=chess_field.occupied.type)):
-				avialable_fields.append(chess_field.name)	
-		return avialable_fields
+				avialable_fields.append(chess_field.name)
+		self.moves=avialable_fields
+		#Dopisanie możliwych ruchów do listy pól potencjalnie 
+		#szachowanych
+		if self.type=="white":
+			for move in self.moves:
+				check_white.append(move)
+		elif self.type=="black":
+			for move in self.moves:
+				check_black.append(move)

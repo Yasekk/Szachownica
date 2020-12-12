@@ -11,10 +11,19 @@ def play_chess():
 	screen=pygame.display.set_mode((settings.screen_width,
 	settings.screen_height))
 	pygame.display.set_caption("Chess")
+	#Lista pól, które mogą być atakowene przez figury danego koloru
+	check_white=[]
+	check_black=[]	
 	#Tworzenie szachownicy i figur
 	chess_board=Group()
 	board_pieces=Group()
-	create_board_and_pieces(settings,screen,chess_board,board_pieces)	
+	create_board_and_pieces(settings,screen,chess_board,board_pieces,
+	check_white,check_black)
+	#Sprawdzenie możliwych ruchów poszczególnych figur
+	fct.check_moves(board_pieces,chess_board,check_white,check_black)
+	#Lista w której będzie znajdował się znacznik pokazujący wybrane
+	#pole
+	highlight=[]
 	while True:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -22,11 +31,12 @@ def play_chess():
 			elif event.type == pygame.MOUSEBUTTONDOWN:
 				#Aktywowanie funkcji, tylko raz podczas kliknięcia
 				if settings.clicked==False:
-					fct.button_click(settings,chess_board)							
+					fct.button_click(settings,screen,chess_board,
+					highlight,check_white,check_black,board_pieces)							
 			elif event.type == pygame.MOUSEBUTTONUP:
 				#Umożliwienie ponownych aktywacji funkcji przy kolejnych
 				#kliknięciach
 				settings.clicked=False
 		#Wyświetlenie obiektów szacownicy	
-		fct.update_screen(screen,chess_board,board_pieces)
+		fct.update_screen(screen,chess_board,board_pieces,highlight)
 play_chess()
