@@ -16,9 +16,10 @@ def button_click(settings,chess_board):
 		mouse_x,mouse_y = pygame.mouse.get_pos()
 		for board_part in chess_board:
 			#Obliczenie możliwych ruchów, jeżeli kliknięte zostanie pole
-			#zajęte przez figurę
-			if board_part.rect.collidepoint(mouse_x,mouse_y) and (
-			board_part.occupied!=None):
+			#zajęte przez figurę i jeżeli gracz wybrał swoją figurę
+			if (board_part.rect.collidepoint(mouse_x,mouse_y) and
+			board_part.occupied!=None and 
+			board_part.occupied.type==settings.current_move):
 				settings.avialable_moves=(
 				board_part.occupied.check_move(chess_board))
 				#Zapamiętanie figury, która jest zaznaczona i zwolnienie
@@ -39,7 +40,10 @@ def button_click(settings,chess_board):
 				if board_part.occupied:
 					board_part.occupied.kill()
 				board_part.occupied=settings.moving_piece
-				#Zakończenie akcji danej figury
+				#Zakończenie akcji danej figury i przekazanie kolejki
+				#następnemu graczowi
+				settings.current_move=settings.next_move
+				settings.next_move=settings.moving_piece.type
 				settings.moving_piece=None
 				settings.avialable_moves=None
 			#Jeżeli zaznaczona figura zostanie kliknięta ponownie,

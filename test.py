@@ -1,2 +1,5 @@
-for x in range(8):
-	print(x)
+a=1
+b=2
+c=3
+if c==3 or b==3 and a==1:
+	print("udalo")

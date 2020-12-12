@@ -23,4 +23,8 @@ class Settings():
 		#powtarzania działania do czasu odkliknięcia i kliknięcia na 
 		#nowo)
 		self.clicked=False
+		#Wskazanie gracza, który ma aktualnie ruch
+		self.current_move="white"
+		#Wskazanie gracza, który będzie miał następny aktualnie ruch
+		self.next_move="black"
 		
