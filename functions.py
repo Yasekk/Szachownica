@@ -99,12 +99,12 @@ def check_moves(board_pieces,chess_board,check_white,check_black):
 	#króle byłyby szachowany
 	for piece in board_pieces:
 		if piece.type=="white" and piece.piece_name=="king":
-			copy_moves=piece.moves
+			copy_moves=piece.moves[:]
 			for field in copy_moves:
 				if field in check_black:
 					piece.moves.remove(field)
 		elif piece.type=="black" and piece.piece_name=="king":
-			copy_moves=piece.moves
+			copy_moves=piece.moves[:]
 			for field in copy_moves:
 				if field in check_white:
 					piece.moves.remove(field)

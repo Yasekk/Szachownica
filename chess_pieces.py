@@ -96,16 +96,33 @@ class Pawn(Sprite):
 		if self.type=="white":
 			if self.first_move==True:
 				#W pierwszym ruchu mozna poruszyć się pionem o jedno lub
-				#dwa pola do przodu
+				#dwa pola do przodu, chyba że natrafi się na inną figurę
+				obstacle_found=False
+				for distance in range(1,3):
+					if obstacle_found==True:
+						break
+					for chess_field in chess_board:
+						#Znalezienie pól na szachownicy, które mają 
+						#takie samo położenie poziome co obecnie 
+						#zajmowane i jedno lub dwa pola wyższe.
+						if (chess_field.vertical==self.vertical+distance
+						and chess_field.horizontal==self.horizontal):
+							if chess_field.occupied!=None:
+								obstacle_found=True
+								break
+							avialable_fields.append(chess_field.name)
+				#Ewentualnie bicie po skosie, jeżeli znajduje się 
+				#tam figura przeciwnika
 				for chess_field in chess_board:
-					#Znalezienie pól na szachownicy, które mają takie 
-					#samo położenie poziome co obecnie zajmowane i jedno
-					#lub dwa pola wyższe
 					if (chess_field.vertical==self.vertical+1 and 
-					chess_field.horizontal==self.horizontal):
+					chess_field.horizontal==self.horizontal+1 and 
+					chess_field.occupied!=None and 
+					chess_field.occupied.type!=self.type):
 						avialable_fields.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical+2 and 
-					chess_field.horizontal==self.horizontal):
+					elif (chess_field.vertical==self.vertical+1 and 
+					chess_field.horizontal==self.horizontal-1 and 
+					chess_field.occupied!=None and 
+					chess_field.occupied.type!=self.type):
 						avialable_fields.append(chess_field.name)
 			else:
 				#W drugim ruchu można poruszyć się o jedno wolne pole do
@@ -129,16 +146,33 @@ class Pawn(Sprite):
 		if self.type=="black":
 			if self.first_move==True:
 				#W pierwszym ruchu mozna poruszyć się pionem o jedno lub
-				#dwa pola do przodu
+				#dwa pola do przodu, chyba że natrafi się na inną figurę
+				obstacle_found=False
+				for distance in range(1,3):		
+					if obstacle_found==True:
+						break
+					for chess_field in chess_board:
+						#Znalezienie pól na szachownicy, które mają 
+						#takie samo położenie poziome co obecnie 
+						#zajmowane i jedno lub dwa pola wyższe.
+						if (chess_field.vertical==self.vertical-distance
+						and chess_field.horizontal==self.horizontal):
+							if chess_field.occupied!=None:
+								obstacle_found=True
+								break
+							avialable_fields.append(chess_field.name)
+				#Ewentualnie bicie po skosie, jeżeli znajduje się 
+				#tam figura przeiwnika
 				for chess_field in chess_board:
-					#Znalezienie pól na szachownicy, które mają takie 
-					#samo położenie poziome co obecnie zajmowane i jedno
-					#lub dwa pola niższe
 					if (chess_field.vertical==self.vertical-1 and 
-					chess_field.horizontal==self.horizontal):
+					chess_field.horizontal==self.horizontal+1 and 
+					chess_field.occupied!=None and 
+					chess_field.occupied.type!=self.type):
 						avialable_fields.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical-2 and 
-					chess_field.horizontal==self.horizontal):
+					elif (chess_field.vertical==self.vertical-1 and 
+					chess_field.horizontal==self.horizontal-1 and 
+					chess_field.occupied!=None and 
+					chess_field.occupied.type!=self.type):
 						avialable_fields.append(chess_field.name)
 			else:
 				#W drugim ruchu można poruszyć się o jedno wolne pole do
@@ -241,8 +275,13 @@ class Rook(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
 							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
@@ -269,8 +308,13 @@ class Rook(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
 							field_down_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
@@ -298,8 +342,13 @@ class Rook(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
 							field_left_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
@@ -327,8 +376,13 @@ class Rook(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
 							field_right_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
@@ -499,9 +553,14 @@ class Bishop(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_NE_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -528,9 +587,14 @@ class Bishop(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_SE_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -557,9 +621,14 @@ class Bishop(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_SW_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -586,9 +655,14 @@ class Bishop(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_NW_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -671,8 +745,13 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
 							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
@@ -699,9 +778,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_down_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -728,9 +812,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_left_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -757,9 +846,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_right_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -786,9 +880,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_NE_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -815,9 +914,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_SE_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -844,9 +948,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_SW_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
@@ -873,9 +982,14 @@ class Queen(Sprite):
 							break
 						#Jezeli pole jest zajęte przez figurę tego
 						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego
+						#pola ani żadnego dalszego, ale zostanie dodane 
+						#to pole do pól szachowanych
 						elif chess_field.occupied.type==self.type:
-							field_NW_obstacle_found=True
+							if self.type=="white":
+								check_white.append(chess_field.name)
+							elif self.type=="black":
+								check_black.append(chess_field.name)
+							field_up_obstacle_found=True
 							break
 					#Pozostałe wolne pola są dodane do puli możliwych
 					#ruchów
