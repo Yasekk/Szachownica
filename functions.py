@@ -1,6 +1,6 @@
 import pygame
-from UI import SelectedPart
-def update_screen(screen,chess_board,board_pieces,highlight):
+from UI import SelectedPart,WinningScreen
+def update_screen(screen,chess_board,board_pieces,highlight,game_end):
 	"""Wyświetlanie tła, szachownicy i figur"""
 	screen.fill((200,200,200))
 	for board_part in chess_board:
@@ -9,9 +9,11 @@ def update_screen(screen,chess_board,board_pieces,highlight):
 		selected_part.draw_part()
 	for piece in board_pieces:
 		piece.draw_piece()
+	for winning_screen in game_end:
+		winning_screen.draw_message()
 	pygame.display.flip()
 def button_click(settings,screen,chess_board,highlight,check_white,
-check_black,board_pieces):
+check_black,board_pieces,game_end):
 	"""Akcje dostępne po kliknięciu na szachownicę"""
 	#Zaznaczenie, że kliknięcie już raz nastapiło
 	settings.clicked=True
@@ -62,21 +64,9 @@ check_black,board_pieces):
 				check_black)
 				#Usunięcie podświetlenia wybranego pola
 				highlight.pop()
-				#Sprawdzanie, które pola mogą być obecnie atakowane
-				#przez figury danego koloru
-				#for board_part in chess_board:
-					#if board_part.occupied:
-						#if board_part.occupied.type=="white":
-							#for field in board_part.occupied.check_move(
-							#chess_board,check_white,check_black):
-								#check_white.append(field)
-						#elif board_part.occupied.type=="black":
-							#for field in board_part.occupied.check_move(
-							#chess_board,check_white,check_black):
-								#check_black.append(field)
-				#Sprawdzenie, czy któryś z króli jest szachowany
-				#for board_piece in board_pieces:
-					#if board_piece
+				#Sprawdzenie czy nastąpił szach mat
+				check_mate(chess_board,check_white,check_black,game_end,
+				screen,settings)
 			#Jeżeli zaznaczona figura zostanie kliknięta ponownie,
 			#nastąpi anulowanie poprzedniego ruchu i bedzie możliwe
 			#wybranie innej figury
@@ -108,4 +98,24 @@ def check_moves(board_pieces,chess_board,check_white,check_black):
 			for field in copy_moves:
 				if field in check_white:
 					piece.moves.remove(field)
-
+def check_mate(chess_board,check_white,check_black,game_end,screen,
+settings):
+	"""Sprawdzenie czy któryś z królów jest szachowany i czy nie może
+	się ruszyć"""
+	for board_part in chess_board:
+		if board_part.occupied:
+			if (board_part.occupied.type=="white" and 
+			board_part.occupied.piece_name=="king"):
+				if board_part.name in check_black and len(
+				board_part.occupied.moves)==0:
+					winning_screen=WinningScreen(screen,settings,
+					"wygrały czarne")
+					game_end.append(winning_screen)
+			elif (board_part.occupied.type=="black" and 
+			board_part.occupied.piece_name=="king"):
+				if board_part.name in check_white and len(
+				board_part.occupied.moves)==0:
+					winning_screen=WinningScreen(screen,settings,
+					"wygrały białe")
+					game_end.append(winning_screen)
+			

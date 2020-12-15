@@ -2,6 +2,68 @@ import pygame
 from pygame.sprite import Sprite
 from pygame.sprite import Group
 import json
+
+def check_move_row(obstacle_found,king_found,chess_board,self,vertical,
+horizontal,avialable_fields,check_white,check_black):
+	"""Sprawdzenie dostępnych pól w danym rzędzie"""
+	for next_field in range(1,8):
+		#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
+		#już na inną figurę
+		if obstacle_found==True:
+			break
+		#Szukanie pól, które mają kolejne pozycje w danym rzedzie
+		for chess_field in chess_board:
+			if (chess_field.vertical==self.vertical+next_field*vertical
+			and chess_field.horizontal==
+			self.horizontal+next_field*horizontal):
+				if chess_field.occupied:
+					#Jeżeli pole jest zajęte przez figurę innego
+					#koloru, będzie możliwe stanie na tym polu, ale 
+					#nie dalej
+					if chess_field.occupied.type!=self.type:
+						if (chess_field.occupied.piece_name!="king" and 
+						king_found==False):
+							avialable_fields.append(
+							chess_field.name)
+							obstacle_found=True
+							break
+						#Jeżeli dana figura stoi za królem, iteracja
+						#jest zakończona
+						elif (chess_field.occupied.piece_name!="king" 
+						and king_found==True):
+							obstacle_found=True
+							break
+						#Jeżeli natrafi sie na króla, iteracja jest
+						#kontynuowana. Dalsze pola nie będą możliwymi
+						#ruchami ale polami, na które król nie będzie
+						#mógł się ruszyć
+						else:
+							avialable_fields.append(chess_field.name)
+							king_found=True
+					#Jezeli pole jest zajęte przez figurę tego
+					#samego koloru, nie będzie mozna zając tego
+					#pola ani żadnego dalszego, ale zostanie dodane 
+					#to pole do pól szachowanych
+					elif chess_field.occupied.type==self.type:
+						if self.type=="white":
+							check_white.append(chess_field.name)
+						elif self.type=="black":
+							check_black.append(chess_field.name)
+						obstacle_found=True
+						break
+					#Pozostałe wolne pola są dodane do puli możliwych
+					#ruchów (albo tylko do pól potencjalnie szachowanych
+					#jeżeli toją za królem)
+				else:
+					if king_found==False:
+						avialable_fields.append(chess_field.name)
+					elif king_found==True:
+						if self.type=="white":
+							check_white.append(chess_field.name)
+						elif self.type=="black":
+							check_black.append(chess_field.name)
+
+
 def load_picture(screen,settings,piece_type,piece_name,picture):
 	"""Wczytywanie obrazku figury"""
 	with open("Pictures/"+piece_type+"_"+piece_name+".json","r") as (
@@ -311,143 +373,26 @@ class Rook(Sprite):
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
 		#rzędzie jest zablokowane i czy nie można przesunąć się dalej
 		field_up_obstacle_found=False
+		field_up_king_found=False
 		field_down_obstacle_found=False
+		field_down_king_found=False
 		field_left_obstacle_found=False
+		field_left_king_found=False
 		field_right_obstacle_found=False
+		field_right_king_found=False
 		#Sprawdzenie dostępnych pól w rzędzie w górę
-		for next_field_up in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_up_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical+next_field_up 
-				and chess_field.horizontal==self.horizontal):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_up_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_up_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_up_obstacle_found,field_up_king_found,
+		chess_board,self,1,0,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie w dół
-		for next_field_down in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_down_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical-next_field_down 
-				and chess_field.horizontal==self.horizontal):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_down_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_down_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_down_obstacle_found,field_down_king_found,
+		chess_board,self,-1,0,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie w lewo
-		for next_field_left in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_left_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal-next_field_left 
-				and chess_field.vertical==self.vertical):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_left_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_left_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_left_obstacle_found,field_left_king_found,
+		chess_board,self,0,-1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie w prawo
-		for next_field_right in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_right_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal+next_field_right 
-				and chess_field.vertical==self.vertical):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_right_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_right_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_right_obstacle_found,
+		field_right_king_found,chess_board,self,0,1,avialable_fields,
+		check_white,check_black)
 		self.moves=avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
 		#szachowanych
@@ -667,145 +612,25 @@ class Bishop(Sprite):
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
 		#rzędzie jest zablokowane i czy nie można przesunąć się dalej
 		field_NE_obstacle_found=False
+		field_NE_king_found=False
 		field_SE_obstacle_found=False
+		field_SE_king_found=False
 		field_SW_obstacle_found=False
+		field_SW_king_found=False
 		field_NW_obstacle_found=False
+		field_NW_king_found=False
 		#Sprawdzenie dostępnych pól w rzędzie w na północny-wschód
-		for next_field_NE in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_NE_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical+next_field_NE 
-				and chess_field.horizontal==self.horizontal+
-				next_field_NE):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_NE_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_NE_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_NE_obstacle_found,field_NE_king_found,
+		chess_board,self,1,1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie na południowy-wschód
-		for next_field_SE in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_SE_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical-next_field_SE 
-				and chess_field.horizontal==self.horizontal+
-				next_field_SE):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_SE_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_SE_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_SE_obstacle_found,field_SE_king_found,
+		chess_board,self,-1,1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie na połódniowy-zachód
-		for next_field_SW in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_SW_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal-next_field_SW 
-				and chess_field.vertical==self.vertical-next_field_SW):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_SW_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_SW_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_SW_obstacle_found,field_SW_king_found,
+		chess_board,self,-1,-1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie na północny-zachód
-		for next_field_NW in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_NW_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal-next_field_NW 
-				and chess_field.vertical==self.vertical+next_field_NW):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_NW_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_NW_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_NW_obstacle_found,field_NW_king_found,
+		chess_board,self,1,-1,avialable_fields,check_white,check_black)
 		self.moves=avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
 		#szachowanych
@@ -856,283 +681,46 @@ class Queen(Sprite):
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
 		#rzędzie jest zablokowane i czy nie można przesunąć się dalej
 		field_up_obstacle_found=False
+		field_up_king_found=False
 		field_down_obstacle_found=False
+		field_down_king_found=False
 		field_left_obstacle_found=False
+		field_left_king_found=False
 		field_right_obstacle_found=False
+		field_right_king_found=False
 		field_NE_obstacle_found=False
+		field_NE_king_found=False
 		field_SE_obstacle_found=False
+		field_SE_king_found=False
 		field_SW_obstacle_found=False
+		field_SW_king_found=False
 		field_NW_obstacle_found=False
+		field_NW_king_found=False
 		#Sprawdzenie dostępnych pól w rzędzie w górę
-		for next_field_up in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_up_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical+next_field_up 
-				and chess_field.horizontal==self.horizontal):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_up_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_up_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_up_obstacle_found,field_up_king_found,
+		chess_board,self,1,0,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie w dół
-		for next_field_down in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_down_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical-next_field_down 
-				and chess_field.horizontal==self.horizontal):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_down_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_down_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_down_obstacle_found,field_down_king_found,
+		chess_board,self,-1,0,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie w lewo
-		for next_field_left in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_left_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal-next_field_left 
-				and chess_field.vertical==self.vertical):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_left_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_left_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_left_obstacle_found,field_left_king_found,
+		chess_board,self,0,-1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie w prawo
-		for next_field_right in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_right_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal+next_field_right 
-				and chess_field.vertical==self.vertical):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_right_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_right_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
-		#Sprawdzenie dostępnych pól w rzędzie w na północny-wschód
-		for next_field_NE in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_NE_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical+next_field_NE 
-				and chess_field.horizontal==self.horizontal+
-				next_field_NE):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_NE_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_NE_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_right_obstacle_found,
+		field_right_king_found,chess_board,self,0,1,avialable_fields,
+		check_white,check_black)
+		#Sprawdzenie dostępnych pól w rzędzie na północny-wschód
+		check_move_row(field_NE_obstacle_found,field_NE_king_found,
+		chess_board,self,1,1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie na południowy-wschód
-		for next_field_SE in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_SE_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (chess_field.vertical==self.vertical-next_field_SE 
-				and chess_field.horizontal==self.horizontal+
-				next_field_SE):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_SE_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_SE_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
-		#Sprawdzenie dostępnych pól w rzędzie na połódniowy-zachód
-		for next_field_SW in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_SW_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal-next_field_SW 
-				and chess_field.vertical==self.vertical-next_field_SW):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_SW_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_SW_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_SE_obstacle_found,field_SE_king_found,
+		chess_board,self,-1,1,avialable_fields,check_white,check_black)
+		#Sprawdzenie dostępnych pól w rzędzie na południowy-zachód
+		check_move_row(field_SW_obstacle_found,field_SW_king_found,
+		chess_board,self,-1,-1,avialable_fields,check_white,check_black)
 		#Sprawdzenie dostępnych pól w rzędzie na północny-zachód
-		for next_field_NW in range(1,8):
-			#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-			#już na inną figurę
-			if field_NW_obstacle_found==True:
-				break
-			#Szukanie pól, które mają kolejne pozycje w danym rzedzie
-			for chess_field in chess_board:
-				if (
-				chess_field.horizontal==self.horizontal-next_field_NW 
-				and chess_field.vertical==self.vertical+next_field_NW):
-					if chess_field.occupied:
-						#Jeżeli pole jest zajęte przez figurę innego
-						#koloru, będzie możliwe stanie na tym polu, ale 
-						#nie dalej
-						if chess_field.occupied.type!=self.type:
-							avialable_fields.append(chess_field.name)
-							field_NW_obstacle_found=True
-							break
-						#Jezeli pole jest zajęte przez figurę tego
-						#samego koloru, nie będzie mozna zając tego
-						#pola ani żadnego dalszego, ale zostanie dodane 
-						#to pole do pól szachowanych
-						elif chess_field.occupied.type==self.type:
-							if self.type=="white":
-								check_white.append(chess_field.name)
-							elif self.type=="black":
-								check_black.append(chess_field.name)
-							field_NW_obstacle_found=True
-							break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów
-					else:
-						avialable_fields.append(chess_field.name)
+		check_move_row(field_NW_obstacle_found,field_NW_king_found,
+		chess_board,self,1,-1,avialable_fields,check_white,check_black)
 		self.moves=avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
 		#szachowanych

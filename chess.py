@@ -24,6 +24,8 @@ def play_chess():
 	#Lista w której będzie znajdował się znacznik pokazujący wybrane
 	#pole
 	highlight=[]
+	#Lista w której będzie znajdował się komunikat końca gry
+	game_end=[]
 	while True:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -32,11 +34,13 @@ def play_chess():
 				#Aktywowanie funkcji, tylko raz podczas kliknięcia
 				if settings.clicked==False:
 					fct.button_click(settings,screen,chess_board,
-					highlight,check_white,check_black,board_pieces)							
+					highlight,check_white,check_black,board_pieces,
+					game_end)							
 			elif event.type == pygame.MOUSEBUTTONUP:
 				#Umożliwienie ponownych aktywacji funkcji przy kolejnych
 				#kliknięciach
 				settings.clicked=False
 		#Wyświetlenie obiektów szacownicy	
-		fct.update_screen(screen,chess_board,board_pieces,highlight)
+		fct.update_screen(screen,chess_board,board_pieces,highlight,
+		game_end)
 play_chess()
