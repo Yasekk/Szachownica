@@ -27,4 +27,7 @@ class Settings():
 		self.current_move="white"
 		#Wskazanie gracza, który będzie miał następny aktualnie ruch
 		self.next_move="black"
+		#Sprawdzanie, czy nastąpił szach
+		self.checked_white=0
+		self.checked_black=0
 		

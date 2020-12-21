@@ -19,8 +19,12 @@ def play_chess():
 	board_pieces=Group()
 	create_board_and_pieces(settings,screen,chess_board,board_pieces,
 	check_white,check_black)
+	#Lista, w której będą się zjadnowały pola mozliwo do zasłonięcia,
+	#jeżeli król będzie szachowany prze figure poszuszajacą się rzędem
+	king_attack_path=[]
 	#Sprawdzenie możliwych ruchów poszczególnych figur
-	fct.check_moves(board_pieces,chess_board,check_white,check_black)
+	fct.check_moves(board_pieces,chess_board,check_white,check_black,
+	king_attack_path)
 	#Lista w której będzie znajdował się znacznik pokazujący wybrane
 	#pole
 	highlight=[]
@@ -35,7 +39,7 @@ def play_chess():
 				if settings.clicked==False:
 					fct.button_click(settings,screen,chess_board,
 					highlight,check_white,check_black,board_pieces,
-					game_end)							
+					game_end,king_attack_path)							
 			elif event.type == pygame.MOUSEBUTTONUP:
 				#Umożliwienie ponownych aktywacji funkcji przy kolejnych
 				#kliknięciach
