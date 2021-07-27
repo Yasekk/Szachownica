@@ -4,15 +4,18 @@ from pygame.sprite import Group
 import json
 
 def check_move_jump(self,chess_field,avialable_fields,check_white,
-check_black,horizontal,vertical):
+check_black,horizontal,vertical,king_attack_path):
 	"""Sprawdzanie dostepnych pól dla figur skaczących"""
 	if (chess_field.horizontal==self.horizontal+horizontal and 
 	chess_field.vertical==self.vertical+vertical):
 		#Możiwość przejścia na pola, które są albo puste albo 
 		#zajęte przez figurę przeciwnika 
-		if (chess_field.occupied==None or 
-		self.type!=chess_field.occupied.type):
+		if chess_field.occupied==None: 
 			avialable_fields.append(chess_field.name)
+		elif self.type!=chess_field.occupied.type:
+			avialable_fields.append(chess_field.name)
+			if chess_field.occupied.piece_name=="king":
+				king_attack_path.append(chess_field.name)
 			#Jeżeli pole jest zajęte przez figurę tego samego koloru
 			#to zostanie dodane do pól potencjalnie szachowanych
 		elif (chess_field.occupied!=None and 
@@ -486,21 +489,21 @@ class Knight(Sprite):
 		#Sprawdzenie wszystkich możliwych ruchów konia
 		for chess_field in chess_board:
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,2)
+			check_white,check_black,1,2,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,-2)
+			check_white,check_black,1,-2,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,2)
+			check_white,check_black,-1,2,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,-2)
+			check_white,check_black,-1,-2,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,2,1)
+			check_white,check_black,2,1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,2,-1)
+			check_white,check_black,2,-1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-2,1)
+			check_white,check_black,-2,1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-2,-1)
+			check_white,check_black,-2,-1,king_attack_path)
 		self.moves=avialable_fields
 		#Uzupełnienie listy pól potencjalnie szachowanych wszystkimi 
 		#polami, na które skoczek może przejść
@@ -727,21 +730,21 @@ class King(Sprite):
 		#Sprawdzenie wszystkich ruchów dostępnych dla króla
 		for chess_field in chess_board:
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,0,1)
+			check_white,check_black,0,1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,1)
+			check_white,check_black,1,1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,0)
+			check_white,check_black,1,0,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,-1)
+			check_white,check_black,1,-1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,0,-1)
+			check_white,check_black,0,-1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,-1)
+			check_white,check_black,-1,-1,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,0)
+			check_white,check_black,-1,0,king_attack_path)
 			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,1)
+			check_white,check_black,-1,1,king_attack_path)
 		self.moves=avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
 		#szachowanych
