@@ -1,153 +1,167 @@
-import pygame
-from pygame.sprite import Sprite
-from pygame.sprite import Group
-import json
+"""Moduł odpowiedzialny za figury szachowe i powiązane z nimi funkcje."""
 
-def check_move_jump(self,chess_field,avialable_fields,check_white,
-check_black,horizontal,vertical,king_attack_path):
-	"""Sprawdzanie dostepnych pól dla figur skaczących"""
-	if (chess_field.horizontal==self.horizontal+horizontal and 
-	chess_field.vertical==self.vertical+vertical):
+import json
+import pygame
+from pygame.sprite import Sprite, Group
+
+def check_move_jump(self, chess_field, avialable_fields, check_white,
+                    check_black, horizontal, vertical,
+                    king_attack_path):
+	"""Sprawdzanie dostepnych pól dla figur skaczących."""
+	if (chess_field.horizontal == self.horizontal + horizontal
+	and chess_field.vertical == self.vertical + vertical):
 		#Możiwość przejścia na pola, które są albo puste albo 
-		#zajęte przez figurę przeciwnika 
-		if chess_field.occupied==None: 
+		#zajęte przez figurę przeciwnika.
+		if chess_field.occupied == None: 
 			avialable_fields.append(chess_field.name)
-		elif self.type!=chess_field.occupied.type:
+		elif self.type != chess_field.occupied.type:
 			avialable_fields.append(chess_field.name)
-			if chess_field.occupied.piece_name=="king":
+			if chess_field.occupied.piece_name == "king":
 				king_attack_path.append(chess_field.name)
 			#Jeżeli pole jest zajęte przez figurę tego samego koloru
-			#to zostanie dodane do pól potencjalnie szachowanych
-		elif (chess_field.occupied!=None and 
-		self.type==chess_field.occupied.type):
-			if self.type=="white":
+			#to zostanie dodane do pól potencjalnie szachowanych.
+		elif (chess_field.occupied != None
+		and self.type == chess_field.occupied.type):
+			if self.type == "white":
 				check_white.append(chess_field.name)
-			elif self.type=="black":
+			elif self.type == "black":
 				check_black.append(chess_field.name)
 
-def check_move_row(obstacle_found,king_found,chess_board,self,vertical,
-horizontal,avialable_fields,check_white,check_black,king_attack_path):
+
+def check_move_row(obstacle_found, king_found, chess_board,
+                   self,vertical, horizontal, avialable_fields,
+                   check_white, check_black, king_attack_path):
 	"""Sprawdzenie dostępnych pól dla figur poruszających się w
-	rzędzie"""
-	for next_field in range(1,8):
+	rzędzie.
+	"""
+	for next_field in range(1, 8):
 		#Zaprzestanie szukania w danym rzędzie, jeżeli natafiło się
-		#już na inną figurę
-		if obstacle_found==True:
+		#już na inną figurę.
+		if obstacle_found == True:
 			break
-		#Szukanie pól, które mają kolejne pozycje w danym rzedzie
+		#Szukanie pól, które mają kolejne pozycje w danym rzedzie.
 		for chess_field in chess_board:
-			if (chess_field.vertical==self.vertical+next_field*vertical
-			and chess_field.horizontal==
-			self.horizontal+next_field*horizontal):
+			if ((chess_field.vertical
+			     == self.vertical + next_field*vertical)
+			and (chess_field.horizontal
+			     == self.horizontal + next_field*horizontal)):
 				if chess_field.occupied:
 					#Jeżeli pole jest zajęte przez figurę innego
 					#koloru, będzie możliwe stanie na tym polu, ale 
-					#nie dalej
-					if chess_field.occupied.type!=self.type:
-						if (chess_field.occupied.piece_name!="king" and 
-						king_found==False):
-							avialable_fields.append(
-							chess_field.name)
-							obstacle_found=True
+					#nie dalej.
+					if chess_field.occupied.type != self.type:
+						if (chess_field.occupied.piece_name != "king"
+						and king_found == False):
+							avialable_fields.append(chess_field.name)
+							obstacle_found = True
 							break
 						#Jeżeli dana figura stoi za królem, iteracja
-						#jest zakończona
-						elif (chess_field.occupied.piece_name!="king" 
-						and king_found==True):
-							obstacle_found=True
+						#jest zakończona.
+						elif (chess_field.occupied.piece_name != "king" 
+						and king_found == True):
+							obstacle_found = True
 							break
 						#Jeżeli natrafi sie na króla, iteracja jest
 						#kontynuowana. Dalsze pola nie będą możliwymi
 						#ruchami ale polami, na które król nie będzie
-						#mógł się ruszyć
+						#mógł się ruszyć.
 						else:
 							avialable_fields.append(chess_field.name)
-							king_found=True
+							king_found = True
 							#Pola na którym stoi figura zagrażająca 
 							#królowi raz cała ścieżka prowaząca do niego
 							#są dodane do osobnej listy. Pomoże to 
 							#wykluczyć szachmta, jeżeli da się zasłonić 
 							#tę ścieżkę.
-							for next_one in range(0,next_field):
+							for next_one in range(0, next_field):
 								for chess_part in chess_board:
-									if (chess_part.vertical==
-									self.vertical+next_one*vertical 
-									and chess_part.horizontal==
-									self.horizontal+next_one*horizontal
-									):
+									if ((chess_part.vertical 
+									     == self.vertical
+									     + next_one*vertical) 
+									and (chess_part.horizontal
+									     == self.horizontal
+									     + next_one*horizontal)):
 										king_attack_path.append(
-										chess_part.name)
+										    chess_part.name)
 					#Jezeli pole jest zajęte przez figurę tego
 					#samego koloru, nie będzie mozna zając tego
 					#pola ani żadnego dalszego, ale zostanie dodane 
-					#to pole do pól szachowanych
-					elif chess_field.occupied.type==self.type:
-						if self.type=="white":
+					#to pole do pól szachowanych.
+					elif chess_field.occupied.type == self.type:
+						if self.type == "white":
 							check_white.append(chess_field.name)
-						elif self.type=="black":
+						elif self.type == "black":
 							check_black.append(chess_field.name)
-						obstacle_found=True
+						obstacle_found = True
 						break
-					#Pozostałe wolne pola są dodane do puli możliwych
-					#ruchów (albo tylko do pól potencjalnie szachowanych
-					#jeżeli toją za królem)
+				#Pozostałe wolne pola są dodane do puli możliwych
+				#ruchów (albo tylko do pól potencjalnie szachowanych
+				#jeżeli stoją za królem).
 				else:
-					if king_found==False:
+					if not king_found:
 						avialable_fields.append(chess_field.name)
-					elif king_found==True:
+					elif king_found:
 						if self.type=="white":
 							check_white.append(chess_field.name)
 						elif self.type=="black":
 							check_black.append(chess_field.name)
 
-def load_picture(screen,settings,piece_type,piece_name,picture):
-	"""Wczytywanie obrazku figury"""
-	with open("Pictures/"+piece_type+"_"+piece_name+".json","r") as (
-	picture_load):
+
+def load_picture(screen, settings, piece_type, piece_name, picture):
+	"""Wczytywanie obrazku figury."""
+	with open("Pictures/" + piece_type + "_" + piece_name + ".json",
+	          "r") as (picture_load):
 		#Wczytywanie danych z pliku pasującego do nazwy konkretnej
-		#figury i odtwarzanie z nich rysunku figury
-		picture_data=json.load(picture_load)
+		#figury i odtwarzanie z nich rysunku figury.
+		picture_data = json.load(picture_load)
 		for picture_element_data in picture_data:
-			picture_element=PiecePart(screen,
-			settings,picture_element_data[1])
-			picture_element.rect.center=picture_element_data[0]
+			picture_element = PiecePart(screen,
+			                            settings,
+			                            picture_element_data[1])
+			picture_element.rect.center = picture_element_data[0]
 			picture.add(picture_element)
-			
+
+
 def set_position(picture):
 	"""Ustalenie wzglednego położenia każdego elementu rysunku w
-	stosunku do środka rysunku"""
-	positions_x=[]
-	positions_y=[]
+	stosunku do środka rysunku.
+	"""
+	positions_x = []
+	positions_y = []
 	#Ustalenie skrajnych wartości pozycji elementów i wyliczenie ich 
-	#połów (które w pionie i poziomie określą środek rysuknu)
+	#połów (które w pionie i poziomie określą środek rysuknu).
 	for picture_part in picture:
 		positions_x.append(picture_part.rect.centerx)
 		positions_y.append(picture_part.rect.centery)
-	center_x=(min(positions_x)+max(positions_x))/2
-	center_y=(min(positions_y)+max(positions_y))/2
-	#Określenie pozycji każdego elementów rysunku względem środka
+	center_x = (min(positions_x) + max(positions_x)) / 2
+	center_y = (min(positions_y) + max(positions_y)) / 2
+	#Określenie pozycji każdego elementów rysunku względem środka.
 	for picture_part in picture:
-		picture_part.position_x=picture_part.rect.centerx-center_x
-		picture_part.position_y=picture_part.rect.centery-center_y
-		
+		picture_part.position_x = picture_part.rect.centerx - center_x
+		picture_part.position_y = picture_part.rect.centery - center_y
+
+
 class PiecePart(Sprite):
-	"""Tworzenie sprite'ów, z których będą składały się figury"""
-	def __init__(self,screen,settings,color):
+	"""Tworzenie sprite'ów, z których będą składały się figury."""
+
+	def __init__(self, screen, settings, color):
 		super().__init__()
-		self.screen=screen
-		self.screen_rect=screen.get_rect()
+		self.screen = screen
+		self.screen_rect = screen.get_rect()
 		#Wymiary są nieco większe niż wyliczone proporcje, żeby
-		#zaokrąglenia do liczb całkowitych nie tworzyły dziur
-		self.rect=pygame.Rect(0,0,settings.width_grid*1.1,
-		settings.height_grid*1.1)
-		self.color=color
+		#zaokrąglenia do liczb całkowitych nie tworzyły dziur.
+		self.rect = pygame.Rect(0, 0, settings.width_grid*1.1,
+		                        settings.height_grid*1.1)
+		self.color = color
 		#Dodanie atrybutów, które będą zawierały informację o wzglednym
-		#położeniu elementu w stosunku do środka rysunku
-		self.position_x=None
-		self.postion_y=None
+		#położeniu elementu w stosunku do środka rysunku.
+		self.position_x = None
+		self.postion_y = None
+
 	def draw_part(self):
-		"""Wyświetlenie elementu rysunku"""
-		pygame.draw.rect(self.screen,self.color,self.rect)
+		"""Wyświetlenie elementu rysunku."""
+		pygame.draw.rect(self.screen, self.color, self.rect)
+
 
 class Pawn(Sprite):
 	"""Tworzenie pionka"""
@@ -373,6 +387,7 @@ class Pawn(Sprite):
 							check_black.append(chess_field.name)	
 		self.moves=avialable_fields
 
+
 class Rook(Sprite):
 	"""Tworzenie wieży"""
 	def __init__(self,piece_type,screen,settings):
@@ -447,6 +462,8 @@ class Rook(Sprite):
 		elif self.type=="black":
 			for move in self.moves:
 				check_black.append(move)
+
+
 class Knight(Sprite):
 	"""Tworzenie skoczka"""
 	def __init__(self,piece_type,screen,settings):
@@ -513,6 +530,7 @@ class Knight(Sprite):
 		elif self.type=="black":
 			for move in self.moves:
 				check_black.append(move)
+
 
 class Bishop(Sprite):
 	"""Tworzenie gońca"""
@@ -588,6 +606,7 @@ class Bishop(Sprite):
 		elif self.type=="black":
 			for move in self.moves:
 				check_black.append(move)
+
 
 class Queen(Sprite):
 	"""Tworzenie królowej"""
@@ -687,6 +706,7 @@ class Queen(Sprite):
 		elif self.type=="black":
 			for move in self.moves:
 				check_black.append(move)
+
 
 class King(Sprite):
 	"""Tworzenie króla"""
