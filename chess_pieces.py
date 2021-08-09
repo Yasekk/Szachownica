@@ -164,95 +164,105 @@ class PiecePart(Sprite):
 
 
 class Pawn(Sprite):
-	"""Tworzenie pionka"""
-	def __init__(self,piece_type,screen,settings):
+	"""Klasa odpowiedzialna za tworzenie pionka i określanie jego
+	ruchów.
+	"""
+	
+	def __init__(self, piece_type, screen, settings):
 		super().__init__()
-		self.type=piece_type
-		self.picture=Group()
-		self.screen=screen
-		self.settings=settings
-		self.piece_name="pawn"
-		self.type=piece_type
+		self.type = piece_type
+		self.picture = Group()
+		self.screen = screen
+		self.settings = settings
+		self.piece_name = "pawn"
+		self.type = piece_type
 		#Upewnienie się, że ruch o dwa pola będzie mozliwy tylko
-		#raz
-		self.first_move=True
+		#raz.
+		self.first_move = True
 		#Atrybut zawierający położenie w jakim obecnie znajduje się 
-		#figura
-		self.vertical=None
-		self.horizontal=None
-		#Tworzenie rysunku figury z pliku
-		load_picture(screen,settings,piece_type,self.piece_name,
-		self.picture)
-		#Określenie względnej pozycji każego elementu rysunku
+		#figura.
+		self.vertical = None
+		self.horizontal = None
+		#Tworzenie rysunku figury z pliku.
+		load_picture(screen, settings, piece_type, self.piece_name,
+                     self.picture)
+		#Określenie względnej pozycji każego elementu rysunku.
 		set_position(self.picture)
-		#Aktualnie mozliwe ruchy danej figury
-		self.moves=None
+		#Aktualnie mozliwe ruchy danej figury.
+		self.moves = None
+
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
-		figura"""
+		figura.
+		"""
 		for picture_part in self.picture:
 			picture_part.draw_part()
-	def relocate(self,board_field):
+
+	def relocate(self, board_field):
 		"""Zmiana pozycji figury wzgledem podanych parametrów i 
-		zapisanie pola na jakim znajduje się figura"""
-		self.field=board_field
+		zapisanie pola na jakim znajduje się figura.
+		"""
+		self.field = board_field
 		for picture_element in self.picture:
-			picture_element.rect.centerx=(self.field.rect.centerx+
-			picture_element.position_x)
-			picture_element.rect.centery=(self.field.rect.centery+
-			picture_element.position_y)
-		#Przypisanie położenia pola, na którym znajduje się figura
-		self.vertical=board_field.vertical
-		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board,check_white,check_black,
-	king_attack_path):
-		"""Sprawdzanie pól dostępnych w danym ruchu"""
-		avialable_fields=[]
-		#Ruch dla pionów białych
-		if self.type=="white":
-			if self.first_move==True:
+			picture_element.rect.centerx = (self.field.rect.centerx
+			                                +picture_element.position_x)
+			picture_element.rect.centery = (self.field.rect.centery
+			                                +picture_element.position_y)
+		#Przypisanie położenia pola, na którym znajduje się figura.
+		self.vertical = board_field.vertical
+		self.horizontal = board_field.horizontal
+
+	def check_move(self, chess_board, check_white, check_black,
+	               king_attack_path):
+		"""Sprawdzanie pól dostępnych w danym ruchu."""
+		avialable_fields = []
+		#Ruch dla pionów białych.
+		if self.type == "white":
+			if self.first_move:
 				#W pierwszym ruchu mozna poruszyć się pionem o jedno lub
-				#dwa pola do przodu, chyba że natrafi się na inną figurę
-				obstacle_found=False
-				for distance in range(1,3):
-					if obstacle_found==True:
+				#dwa pola do przodu, chyba że natrafi się na inną
+				#figurę.
+				obstacle_found = False
+				for distance in range(1, 3):
+					if obstacle_found:
 						break
 					for chess_field in chess_board:
 						#Znalezienie pól na szachownicy, które mają 
 						#takie samo położenie poziome co obecnie 
 						#zajmowane i jedno lub dwa pola wyższe.
-						if (chess_field.vertical==self.vertical+distance
-						and chess_field.horizontal==self.horizontal):
-							if chess_field.occupied!=None:
-								obstacle_found=True
+						if ((chess_field.vertical
+						     == self.vertical + distance)
+						and chess_field.horizontal == self.horizontal):
+							if chess_field.occupied != None:
+								obstacle_found = True
 								break
 							avialable_fields.append(chess_field.name)
-				#Ewentualnie bicie po skosie
+				#Ewentualnie bicie po skosie.
 				for chess_field in chess_board:
-					if (chess_field.vertical==self.vertical+1 and 
-					chess_field.horizontal==self.horizontal+1): 
+					if (chess_field.vertical == self.vertical+1
+					and chess_field.horizontal == self.horizontal+1): 
 						#Jeżeli pole po skosie jest zajęte, zostanie
 						#dodane do możwliwych ruchów (jeżeli stoi tam
 						#figura przeciwnika) lub zostanie tylko dodane 
 						#do pól potencjalnie szachowanych jeśli stoi tam 
-						#własna figura
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+						#własna figura.
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_white.append(chess_field.name)
 							else:
 								check_white.append(chess_field.name)
 						#Jeśli pole jest puste, zostanie dodane do listy
-						#pól potencjalnie szachowanych
+						#pól potencjalnie szachowanych.
 						else:
 							check_white.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical+1 and 
-					chess_field.horizontal==self.horizontal-1): 
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+					elif (chess_field.vertical == self.vertical+1
+					and chess_field.horizontal == self.horizontal-1): 
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_white.append(chess_field.name)
 							else:
 								check_white.append(chess_field.name)
@@ -260,88 +270,90 @@ class Pawn(Sprite):
 							check_white.append(chess_field.name)
 			else:
 				#W drugim ruchu można poruszyć się o jedno wolne pole do
-				#przodu albo zbić przeciwną figurę po skosie
+				#przodu albo zbić przeciwną figurę po skosie.
 				for chess_field in chess_board:
-					if (chess_field.vertical==self.vertical+1 and 
-					chess_field.horizontal==self.horizontal and 
-					chess_field.occupied==None):
+					if (chess_field.vertical == self.vertical+1
+					and chess_field.horizontal == self.horizontal
+					and chess_field.occupied == None):
 						avialable_fields.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical+1 and 
-					chess_field.horizontal==self.horizontal+1): 
+					elif (chess_field.vertical == self.vertical+1
+					and chess_field.horizontal == self.horizontal+1): 
 						#Jeżeli pole po skosie jest zajęte, zostanie
 						#dodane do możwliwych ruchów (jeżeli stoi tam
 						#figura przeciwnika) lub zostanie tylko dodane 
 						#do pól potencjalnie szachowanych jeśli stoi tam 
-						#własna figura
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+						#własna figura.
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_white.append(chess_field.name)
 							else:
 								check_white.append(chess_field.name)
 						#Jeśli pole jest puste, zostanie dodane do listy
-						#pól potencjalnie szachowanych
+						#pól potencjalnie szachowanych.
 						else:
 							check_white.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical+1 and 
-					chess_field.horizontal==self.horizontal-1): 
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+					elif (chess_field.vertical == self.vertical+1
+					and chess_field.horizontal == self.horizontal-1): 
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_white.append(chess_field.name)
 							else:
 								check_white.append(chess_field.name)
 						else:
 							check_white.append(chess_field.name)
 		#Ruch dla pionów czarnych
-		if self.type=="black":
-			if self.first_move==True:
+		if self.type == "black":
+			if self.first_move:
 				#W pierwszym ruchu mozna poruszyć się pionem o jedno lub
-				#dwa pola do przodu, chyba że natrafi się na inną figurę
-				obstacle_found=False
-				for distance in range(1,3):		
-					if obstacle_found==True:
+				#dwa pola do przodu, chyba że natrafi się na inną
+				#figurę.
+				obstacle_found = False
+				for distance in range(1, 3):		
+					if obstacle_found:
 						break
 					for chess_field in chess_board:
 						#Znalezienie pól na szachownicy, które mają 
 						#takie samo położenie poziome co obecnie 
 						#zajmowane i jedno lub dwa pola wyższe.
-						if (chess_field.vertical==self.vertical-distance
-						and chess_field.horizontal==self.horizontal):
-							if chess_field.occupied!=None:
-								obstacle_found=True
+						if ((chess_field.vertical
+						     == self.vertical - distance)
+						and chess_field.horizontal == self.horizontal):
+							if chess_field.occupied != None:
+								obstacle_found = True
 								break
 							avialable_fields.append(chess_field.name)
 				#Ewentualnie bicie po skosie, jeżeli znajduje się 
 				#tam figura przeiwnika (i dopisane tych pól do pól 
-				#szachowanych)
+				#szachowanych).
 				for chess_field in chess_board:
-					if (chess_field.vertical==self.vertical-1 and 
-					chess_field.horizontal==self.horizontal+1): 
+					if (chess_field.vertical == self.vertical-1
+					and chess_field.horizontal == self.horizontal+1): 
 						#Jeżeli pole po skosie jest zajęte, zostanie
 						#dodane do możwliwych ruchów (jeżeli stoi tam
 						#figura przeciwnika) lub zostanie tylko dodane 
 						#do pól potencjalnie szachowanych jeśli stoi tam 
-						#własna figura
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+						#własna figura.
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_black.append(chess_field.name)
 							else:
 								check_black.append(chess_field.name)
 						#Jeśli pole jest puste, zostanie dodane do listy
-						#pól potencjalnie szachowanych
+						#pól potencjalnie szachowanych.
 						else:
 							check_black.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical and 
-					chess_field.horizontal==self.horizontal-1): 
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+					elif (chess_field.vertical == self.vertical
+					and chess_field.horizontal == self.horizontal-1): 
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_black.append(chess_field.name)
 							else:
 								check_black.append(chess_field.name)
@@ -350,42 +362,42 @@ class Pawn(Sprite):
 			else:
 				#W drugim ruchu można poruszyć się o jedno wolne pole do
 				#przodu albo zbić przeciwną figurę po skosie (dopisane 
-				#też tych pól do pól szachowanych)
+				#też tych pól do pól szachowanych).
 				for chess_field in chess_board:
-					if (chess_field.vertical==self.vertical-1 and 
-					chess_field.horizontal==self.horizontal and 
-					chess_field.occupied==None):
+					if (chess_field.vertical == self.vertical-1
+					and chess_field.horizontal == self.horizontal
+					and chess_field.occupied == None):
 						avialable_fields.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical-1 and 
-					chess_field.horizontal==self.horizontal+1): 
+					elif (chess_field.vertical == self.vertical-1
+					and chess_field.horizontal == self.horizontal+1): 
 						#Jeżeli pole po skosie jest zajęte, zostanie
 						#dodane do możwliwych ruchów (jeżeli stoi tam
 						#figura przeciwnika) lub zostanie tylko dodane 
 						#do pól potencjalnie szachowanych jeśli stoi tam 
-						#własna figura
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+						#własna figura.
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_black.append(chess_field.name)
 							else:
 								check_black.append(chess_field.name)
 						#Jeśli pole jest puste, zostanie dodane do listy
-						#pól potencjalnie szachowanych
+						#pól potencjalnie szachowanych.
 						else:
 							check_black.append(chess_field.name)
-					elif (chess_field.vertical==self.vertical-1 and 
-					chess_field.horizontal==self.horizontal-1): 
-						if chess_field.occupied!=None:
-							if chess_field.occupied.type!=self.type:
+					elif (chess_field.vertical == self.vertical-1
+					and chess_field.horizontal == self.horizontal-1): 
+						if chess_field.occupied != None:
+							if chess_field.occupied.type != self.type:
 								avialable_fields.append(
-								chess_field.name)
+								    chess_field.name)
 								check_black.append(chess_field.name)
 							else:
 								check_black.append(chess_field.name)
 						else:
 							check_black.append(chess_field.name)	
-		self.moves=avialable_fields
+		self.moves = avialable_fields
 
 
 class Rook(Sprite):
