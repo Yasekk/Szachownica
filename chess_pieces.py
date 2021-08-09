@@ -401,388 +401,446 @@ class Pawn(Sprite):
 
 
 class Rook(Sprite):
-	"""Tworzenie wieży"""
-	def __init__(self,piece_type,screen,settings):
+	"""Klasa odpowiedzialna za tworzenie wieży i określanie jej
+	ruchów.
+	"""
+
+	def __init__(self, piece_type, screen, settings):
 		super().__init__()
-		self.type=piece_type
-		self.picture=Group()
-		self.screen=screen
-		self.settings=settings
-		self.piece_name="rook"
-		#Atrybut zawierający pole na jakim obecnie znajduje się figura
-		self.field=None
-		#Tworzenie rysunku figury z pliku
-		load_picture(screen,settings,piece_type,self.piece_name,
-		self.picture)
-		#Określenie względnej pozycji każego elementu rysunku
+		self.type = piece_type
+		self.picture = Group()
+		self.screen = screen
+		self.settings = settings
+		self.piece_name = "rook"
+		#Atrybut zawierający pole na jakim obecnie znajduje się figura.
+		self.field = None
+		#Tworzenie rysunku figury z pliku.
+		load_picture(screen, settings, piece_type, self.piece_name,
+		             self.picture)
+		#Określenie względnej pozycji każego elementu rysunku.
 		set_position(self.picture)
-		#Aktualnie mozliwe ruchy danej figury
-		self.moves=None
+		#Aktualnie mozliwe ruchy danej figury.
+		self.moves = None
+
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
-		figura"""
+		figura.
+		"""
 		for picture_part in self.picture:
 			picture_part.draw_part()
-	def relocate(self,board_field):
+
+	def relocate(self, board_field):
 		"""Zmiana pozycji figury wzgledem podanych parametrów i 
-		zapisanie pola na jakim znajduje się figura"""
-		self.field=board_field
+		zapisanie pola na jakim znajduje się figura.
+		"""
+		self.field = board_field
 		for picture_element in self.picture:
-			picture_element.rect.centerx=(self.field.rect.centerx+
-			picture_element.position_x)
-			picture_element.rect.centery=(self.field.rect.centery+
-			picture_element.position_y)
-		#Przypisanie położenia pola, na którym znajduje się figura
-		self.vertical=board_field.vertical
-		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board,check_white,check_black,
-	king_attack_path):
-		"""Sprawdzanie pól dostępnych w danym ruchu"""
-		avialable_fields=[]
+			picture_element.rect.centerx = (self.field.rect.centerx
+			                                +picture_element.position_x)
+			picture_element.rect.centery = (self.field.rect.centery
+			                                +picture_element.position_y)
+		#Przypisanie położenia pola, na którym znajduje się figura.
+		self.vertical = board_field.vertical
+		self.horizontal = board_field.horizontal
+
+	def check_move(self, chess_board, check_white, check_black,
+	               king_attack_path):
+		"""Sprawdzanie pól dostępnych w danym ruchu."""
+		avialable_fields = []
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
-		#rzędzie jest zablokowane i czy nie można przesunąć się dalej
-		field_up_obstacle_found=False
-		field_up_king_found=False
-		field_down_obstacle_found=False
-		field_down_king_found=False
-		field_left_obstacle_found=False
-		field_left_king_found=False
-		field_right_obstacle_found=False
-		field_right_king_found=False
-		#Sprawdzenie dostępnych pól w rzędzie w górę
-		check_move_row(field_up_obstacle_found,field_up_king_found,
-		chess_board,self,1,0,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie w dół
-		check_move_row(field_down_obstacle_found,field_down_king_found,
-		chess_board,self,-1,0,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie w lewo
-		check_move_row(field_left_obstacle_found,field_left_king_found,
-		chess_board,self,0,-1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie w prawo
+		#rzędzie jest zablokowane i czy nie można przesunąć się dalej.
+		field_up_obstacle_found = False
+		field_up_king_found = False
+		field_down_obstacle_found = False
+		field_down_king_found = False
+		field_left_obstacle_found = False
+		field_left_king_found = False
+		field_right_obstacle_found = False
+		field_right_king_found = False
+		#Sprawdzenie dostępnych pól w rzędzie w górę.
+		check_move_row(field_up_obstacle_found, field_up_king_found,
+		               chess_board, self, 1, 0, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie w dół.
+		check_move_row(field_down_obstacle_found, field_down_king_found,
+		               chess_board, self, -1, 0, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie w lewo.
+		check_move_row(field_left_obstacle_found, field_left_king_found,
+		               chess_board, self, 0, -1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie w prawo.
 		check_move_row(field_right_obstacle_found,
-		field_right_king_found,chess_board,self,0,1,avialable_fields,
-		check_white,check_black,king_attack_path)
-		self.moves=avialable_fields
+		               field_right_king_found, chess_board, self, 0, 1,
+		               avialable_fields, check_white, check_black,
+		               king_attack_path)
+		self.moves = avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
-		#szachowanych
-		if self.type=="white":
+		#szachowanych.
+		if self.type == "white":
 			for move in self.moves:
 				check_white.append(move)
-		elif self.type=="black":
+		elif self.type == "black":
 			for move in self.moves:
 				check_black.append(move)
 
 
 class Knight(Sprite):
-	"""Tworzenie skoczka"""
-	def __init__(self,piece_type,screen,settings):
+	"""Klasa odpowiedzialna za tworzenie skoczka i określanie jego
+	ruchów.
+	"""
+	
+	def __init__(self, piece_type, screen, settings):
 		super().__init__()
-		self.type=piece_type
-		self.picture=Group()
-		self.screen=screen
-		self.settings=settings
-		self.piece_name="knight"
-		#Atrybut zawierający pole na jakim obecnie znajduje się figura
-		self.field=None
-		#Tworzenie rysunku figury z pliku
-		load_picture(screen,settings,piece_type,self.piece_name,
-		self.picture)
-		#Określenie względnej pozycji każego elementu rysunku
+		self.type = piece_type
+		self.picture = Group()
+		self.screen = screen
+		self.settings = settings
+		self.piece_name = "knight"
+		#Atrybut zawierający pole na jakim obecnie znajduje się figura.
+		self.field = None
+		#Tworzenie rysunku figury z pliku.
+		load_picture(screen, settings, piece_type, self.piece_name,
+		             self.picture)
+		#Określenie względnej pozycji każego elementu rysunku.
 		set_position(self.picture)
-		#Aktualnie mozliwe ruchy danej figury
-		self.moves=None
+		#Aktualnie mozliwe ruchy danej figury.
+		self.moves = None
+
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
-		figura"""
+		figura.
+		"""
 		for picture_part in self.picture:
 			picture_part.draw_part()
-	def relocate(self,board_field):
+
+	def relocate(self, board_field):
 		"""Zmiana pozycji figury wzgledem podanych parametrów i 
-		zapisanie pola na jakim znajduje się figura"""
-		self.field=board_field
+		zapisanie pola na jakim znajduje się figura.
+		"""
+		self.field = board_field
 		for picture_element in self.picture:
-			picture_element.rect.centerx=(self.field.rect.centerx+
-			picture_element.position_x)
-			picture_element.rect.centery=(self.field.rect.centery+
-			picture_element.position_y)
-		#Przypisanie położenia pola, na którym znajduje się figura
-		self.vertical=board_field.vertical
-		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board,check_white,check_black,
-	king_attack_path):
-		"""Sprawdzanie pól dostępnych w danym ruchu"""
-		avialable_fields=[]
-		#Sprawdzenie wszystkich możliwych ruchów konia
+			picture_element.rect.centerx = (self.field.rect.centerx
+			                                +picture_element.position_x)
+			picture_element.rect.centery = (self.field.rect.centery
+			                                +picture_element.position_y)
+		#Przypisanie położenia pola, na którym znajduje się figura.
+		self.vertical = board_field.vertical
+		self.horizontal = board_field.horizontal
+
+	def check_move(self, chess_board, check_white, check_black,
+	               king_attack_path):
+		"""Sprawdzanie pól dostępnych w danym ruchu."""
+		avialable_fields = []
+		#Sprawdzenie wszystkich możliwych ruchów konia.
 		for chess_field in chess_board:
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,2,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,-2,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,2,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,-2,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,2,1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,2,-1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-2,1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-2,-1,king_attack_path)
-		self.moves=avialable_fields
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 1, 2,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 1, -2,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -1, 2,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -1, -2,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 2, 1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 2, -1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -2, 1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -2, -1,
+			                king_attack_path)
+		self.moves = avialable_fields
 		#Uzupełnienie listy pól potencjalnie szachowanych wszystkimi 
-		#polami, na które skoczek może przejść
-		if self.type=="white":
+		#polami, na które skoczek może przejść.
+		if self.type == "white":
 			for move in self.moves:
 				check_white.append(move)
-		elif self.type=="black":
+		elif self.type == "black":
 			for move in self.moves:
 				check_black.append(move)
 
 
 class Bishop(Sprite):
-	"""Tworzenie gońca"""
-	def __init__(self,piece_type,screen,settings):
+	"""Klasa odpowiedzialna za tworzenie gońca i określanie jego
+	ruchów.
+	"""
+
+	def __init__(self, piece_type, screen, settings):
 		super().__init__()
-		self.type=piece_type
-		self.picture=Group()
-		self.screen=screen
-		self.settings=settings
-		self.piece_name="bishop"
-		#Atrybut zawierający pole na jakim obecnie znajduje się figura
-		self.field=None
-		#Tworzenie rysunku figury z pliku
-		load_picture(screen,settings,piece_type,self.piece_name,
-		self.picture)
-		#Określenie względnej pozycji każego elementu rysunku
+		self.type = piece_type
+		self.picture = Group()
+		self.screen = screen
+		self.settings = settings
+		self.piece_name = "bishop"
+		#Atrybut zawierający pole na jakim obecnie znajduje się figura.
+		self.field = None
+		#Tworzenie rysunku figury z pliku.
+		load_picture(screen, settings, piece_type, self.piece_name,
+		             self.picture)
+		#Określenie względnej pozycji każego elementu rysunku.
 		set_position(self.picture)
-		#Aktualnie mozliwe ruchy danej figury
-		self.moves=None
+		#Aktualnie mozliwe ruchy danej figury.
+		self.moves = None
+
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
-		figura"""
+		figura.
+		"""
 		for picture_part in self.picture:
 			picture_part.draw_part()
-	def relocate(self,board_field):
+
+	def relocate(self, board_field):
 		"""Zmiana pozycji figury wzgledem podanych parametrów i 
-		zapisanie pola na jakim znajduje się figura"""
-		self.field=board_field
+		zapisanie pola na jakim znajduje się figura.
+		"""
+		self.field = board_field
 		for picture_element in self.picture:
-			picture_element.rect.centerx=(self.field.rect.centerx+
-			picture_element.position_x)
-			picture_element.rect.centery=(self.field.rect.centery+
-			picture_element.position_y)
-		#Przypisanie położenia pola, na którym znajduje się figura
-		self.vertical=board_field.vertical
-		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board,check_white,check_black,
-	king_attack_path):
-		"""Sprawdzanie pól dostępnych w danym ruchu"""
-		avialable_fields=[]
+			picture_element.rect.centerx = (self.field.rect.centerx
+			                                +picture_element.position_x)
+			picture_element.rect.centery = (self.field.rect.centery
+			                                +picture_element.position_y)
+		#Przypisanie położenia pola, na którym znajduje się figura.
+		self.vertical = board_field.vertical
+		self.horizontal = board_field.horizontal
+
+	def check_move(self, chess_board, check_white, check_black,
+	               king_attack_path):
+		"""Sprawdzanie pól dostępnych w danym ruchu."""
+		avialable_fields = []
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
-		#rzędzie jest zablokowane i czy nie można przesunąć się dalej
-		field_NE_obstacle_found=False
-		field_NE_king_found=False
-		field_SE_obstacle_found=False
-		field_SE_king_found=False
-		field_SW_obstacle_found=False
-		field_SW_king_found=False
-		field_NW_obstacle_found=False
-		field_NW_king_found=False
-		#Sprawdzenie dostępnych pól w rzędzie w na północny-wschód
-		check_move_row(field_NE_obstacle_found,field_NE_king_found,
-		chess_board,self,1,1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na południowy-wschód
-		check_move_row(field_SE_obstacle_found,field_SE_king_found,
-		chess_board,self,-1,1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na połódniowy-zachód
-		check_move_row(field_SW_obstacle_found,field_SW_king_found,
-		chess_board,self,-1,-1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na północny-zachód
-		check_move_row(field_NW_obstacle_found,field_NW_king_found,
-		chess_board,self,1,-1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		self.moves=avialable_fields
+		#rzędzie jest zablokowane i czy nie można przesunąć się dalej.
+		field_NE_obstacle_found = False
+		field_NE_king_found = False
+		field_SE_obstacle_found = False
+		field_SE_king_found = False
+		field_SW_obstacle_found = False
+		field_SW_king_found = False
+		field_NW_obstacle_found = False
+		field_NW_king_found = False
+		#Sprawdzenie dostępnych pól w rzędzie w na północny-wschód.
+		check_move_row(field_NE_obstacle_found, field_NE_king_found,
+		               chess_board, self, 1, 1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na południowy-wschód.
+		check_move_row(field_SE_obstacle_found, field_SE_king_found,
+		               chess_board, self, -1, 1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na połódniowy-zachód.
+		check_move_row(field_SW_obstacle_found, field_SW_king_found,
+		               chess_board, self, -1, -1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na północny-zachód.
+		check_move_row(field_NW_obstacle_found, field_NW_king_found,
+		               chess_board, self, 1, -1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		self.moves = avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
-		#szachowanych
-		if self.type=="white":
+		#szachowanych.
+		if self.type == "white":
 			for move in self.moves:
 				check_white.append(move)
-		elif self.type=="black":
+		elif self.type == "black":
 			for move in self.moves:
 				check_black.append(move)
 
 
 class Queen(Sprite):
-	"""Tworzenie królowej"""
-	def __init__(self,piece_type,screen,settings):
+	"""Klasa odpowiedzialna za tworzenie królowej i określanie jej
+	ruchów.
+	"""
+
+	def __init__(self, piece_type, screen, settings):
 		super().__init__()
-		self.type=piece_type
-		self.picture=Group()
-		self.screen=screen
-		self.settings=settings
-		self.piece_name="queen"
-		#Atrybut zawierający pole na jakim obecnie znajduje się figura
-		self.field=None
-		#Tworzenie rysunku figury z pliku
-		load_picture(screen,settings,piece_type,self.piece_name,
-		self.picture)
-		#Określenie względnej pozycji każego elementu rysunku
+		self.type = piece_type
+		self.picture = Group()
+		self.screen = screen
+		self.settings = settings
+		self.piece_name = "queen"
+		#Atrybut zawierający pole na jakim obecnie znajduje się figura.
+		self.field = None
+		#Tworzenie rysunku figury z pliku.
+		load_picture(screen, settings, piece_type, self.piece_name,
+		             self.picture)
+		#Określenie względnej pozycji każego elementu rysunku.
 		set_position(self.picture)
-		#Aktualnie mozliwe ruchy danej figury
-		self.moves=None
+		#Aktualnie mozliwe ruchy danej figury.
+		self.moves = None
+
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
-		figura"""
+		figura.
+		"""
 		for picture_part in self.picture:
 			picture_part.draw_part()
-	def relocate(self,board_field):
+
+	def relocate(self, board_field):
 		"""Zmiana pozycji figury wzgledem podanych parametrów i 
-		zapisanie pola na jakim znajduje się figura"""
-		self.field=board_field
+		zapisanie pola na jakim znajduje się figura.
+		"""
+		self.field = board_field
 		for picture_element in self.picture:
-			picture_element.rect.centerx=(self.field.rect.centerx+
-			picture_element.position_x)
-			picture_element.rect.centery=(self.field.rect.centery+
-			picture_element.position_y)
-		#Przypisanie położenia pola, na którym znajduje się figura
-		self.vertical=board_field.vertical
-		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board,check_white,check_black,
-	king_attack_path):
-		"""Sprawdzanie pól dostępnych w danym ruchu"""
-		avialable_fields=[]
+			picture_element.rect.centerx = (self.field.rect.centerx
+			                                +picture_element.position_x)
+			picture_element.rect.centery = (self.field.rect.centery
+			                                +picture_element.position_y)
+		#Przypisanie położenia pola, na którym znajduje się figura.
+		self.vertical = board_field.vertical
+		self.horizontal = board_field.horizontal
+
+	def check_move(self, chess_board, check_white, check_black,
+	               king_attack_path):
+		"""Sprawdzanie pól dostępnych w danym ruchu."""
+		avialable_fields = []
 		#Dodanie zmiennych, które zawierają informację, czy pole w 
-		#rzędzie jest zablokowane i czy nie można przesunąć się dalej
-		field_up_obstacle_found=False
-		field_up_king_found=False
-		field_down_obstacle_found=False
-		field_down_king_found=False
-		field_left_obstacle_found=False
-		field_left_king_found=False
-		field_right_obstacle_found=False
-		field_right_king_found=False
-		field_NE_obstacle_found=False
-		field_NE_king_found=False
-		field_SE_obstacle_found=False
-		field_SE_king_found=False
-		field_SW_obstacle_found=False
-		field_SW_king_found=False
-		field_NW_obstacle_found=False
-		field_NW_king_found=False
-		#Sprawdzenie dostępnych pól w rzędzie w górę
-		check_move_row(field_up_obstacle_found,field_up_king_found,
-		chess_board,self,1,0,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie w dół
-		check_move_row(field_down_obstacle_found,field_down_king_found,
-		chess_board,self,-1,0,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie w lewo
-		check_move_row(field_left_obstacle_found,field_left_king_found,
-		chess_board,self,0,-1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie w prawo
+		#rzędzie jest zablokowane i czy nie można przesunąć się dalej.
+		field_up_obstacle_found = False
+		field_up_king_found = False
+		field_down_obstacle_found = False
+		field_down_king_found = False
+		field_left_obstacle_found = False
+		field_left_king_found = False
+		field_right_obstacle_found = False
+		field_right_king_found = False
+		field_NE_obstacle_found = False
+		field_NE_king_found = False
+		field_SE_obstacle_found = False
+		field_SE_king_found = False
+		field_SW_obstacle_found = False
+		field_SW_king_found = False
+		field_NW_obstacle_found = False
+		field_NW_king_found = False
+		#Sprawdzenie dostępnych pól w rzędzie w górę.
+		check_move_row(field_up_obstacle_found, field_up_king_found,
+		               chess_board, self, 1, 0, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie w dół.
+		check_move_row(field_down_obstacle_found, field_down_king_found,
+		               chess_board, self, -1, 0, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie w lewo.
+		check_move_row(field_left_obstacle_found, field_left_king_found,
+		               chess_board, self, 0, -1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie w prawo.
 		check_move_row(field_right_obstacle_found,
-		field_right_king_found,chess_board,self,0,1,avialable_fields,
-		check_white,check_black,king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na północny-wschód
-		check_move_row(field_NE_obstacle_found,field_NE_king_found,
-		chess_board,self,1,1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na południowy-wschód
-		check_move_row(field_SE_obstacle_found,field_SE_king_found,
-		chess_board,self,-1,1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na południowy-zachód
-		check_move_row(field_SW_obstacle_found,field_SW_king_found,
-		chess_board,self,-1,-1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		#Sprawdzenie dostępnych pól w rzędzie na północny-zachód
-		check_move_row(field_NW_obstacle_found,field_NW_king_found,
-		chess_board,self,1,-1,avialable_fields,check_white,check_black,
-		king_attack_path)
-		self.moves=avialable_fields
+                       field_right_king_found, chess_board, self, 0, 1,
+                       avialable_fields, check_white, check_black,
+                       king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na północny-wschód.
+		check_move_row(field_NE_obstacle_found, field_NE_king_found,
+		               chess_board, self, 1, 1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na południowy-wschód.
+		check_move_row(field_SE_obstacle_found, field_SE_king_found,
+                       chess_board, self, -1, 1, avialable_fields,
+                       check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na południowy-zachód.
+		check_move_row(field_SW_obstacle_found, field_SW_king_found,
+                       chess_board, self, -1, -1, avialable_fields,
+                       check_white, check_black, king_attack_path)
+		#Sprawdzenie dostępnych pól w rzędzie na północny-zachód.
+		check_move_row(field_NW_obstacle_found, field_NW_king_found,
+		               chess_board, self, 1, -1, avialable_fields,
+		               check_white, check_black, king_attack_path)
+		self.moves = avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
-		#szachowanych
-		if self.type=="white":
+		#szachowanych.
+		if self.type == "white":
 			for move in self.moves:
 				check_white.append(move)
-		elif self.type=="black":
+		elif self.type == "black":
 			for move in self.moves:
 				check_black.append(move)
 
 
 class King(Sprite):
-	"""Tworzenie króla"""
-	def __init__(self,piece_type,screen,settings):
+	"""Klasa odpowiedzialna za tworzenie króla i określanie jego
+	ruchów.
+	"""
+
+	def __init__(self, piece_type, screen, settings):
 		super().__init__()
-		self.type=piece_type
-		self.picture=Group()
-		self.screen=screen
-		self.settings=settings
-		self.piece_name="king"
-		#Atrybut zawierający pole na jakim obecnie znajduje się figura
-		self.field=None
-		#Tworzenie rysunku figury z pliku
-		load_picture(screen,settings,piece_type,self.piece_name,
-		self.picture)
-		#Określenie względnej pozycji każego elementu rysunku
+		self.type = piece_type
+		self.picture = Group()
+		self.screen = screen
+		self.settings = settings
+		self.piece_name = "king"
+		#Atrybut zawierający pole na jakim obecnie znajduje się figura.
+		self.field = None
+		#Tworzenie rysunku figury z pliku.
+		load_picture(screen, settings, piece_type, self.piece_name,
+		             self.picture)
+		#Określenie względnej pozycji każego elementu rysunku.
 		set_position(self.picture)
-		#Aktualnie mozliwe ruchy danej figury
-		self.moves=None
+		#Aktualnie mozliwe ruchy danej figury.
+		self.moves = None
+
 	def draw_piece(self):
 		"""Wyświetlenie wszystkich elementów z których składa się 
-		figura"""
+		figura.
+		"""
 		for picture_part in self.picture:
 			picture_part.draw_part()
-	def relocate(self,board_field):
+
+	def relocate(self, board_field):
 		"""Zmiana pozycji figury wzgledem podanych parametrów i 
-		zapisanie pola na jakim znajduje się figura"""
-		self.field=board_field
+		zapisanie pola na jakim znajduje się figura.
+		"""
+		self.field = board_field
 		for picture_element in self.picture:
-			picture_element.rect.centerx=(self.field.rect.centerx+
-			picture_element.position_x)
-			picture_element.rect.centery=(self.field.rect.centery+
-			picture_element.position_y)
-		#Przypisanie położenia pola, na którym znajduje się figura
-		self.vertical=board_field.vertical
-		self.horizontal=board_field.horizontal
-	def check_move(self,chess_board,check_white,check_black,
-	king_attack_path):
-		"""Sprawdzanie pól dostępnych w danym ruchu"""
-		avialable_fields=[]
-		#Sprawdzenie wszystkich ruchów dostępnych dla króla
+			picture_element.rect.centerx = (self.field.rect.centerx
+			                                +picture_element.position_x)
+			picture_element.rect.centery = (self.field.rect.centery
+			                                +picture_element.position_y)
+		#Przypisanie położenia pola, na którym znajduje się figura.
+		self.vertical = board_field.vertical
+		self.horizontal = board_field.horizontal
+
+	def check_move(self, chess_board, check_white, check_black,
+	               king_attack_path):
+		"""Sprawdzanie pól dostępnych w danym ruchu."""
+		avialable_fields = []
+		#Sprawdzenie wszystkich ruchów dostępnych dla króla.
 		for chess_field in chess_board:
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,0,1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,0,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,1,-1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,0,-1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,-1,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,0,king_attack_path)
-			check_move_jump(self,chess_field,avialable_fields,
-			check_white,check_black,-1,1,king_attack_path)
-		self.moves=avialable_fields
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 0, 1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 1, 1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 1, 0,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 1, -1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, 0, -1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -1, -1,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -1, 0,
+			                king_attack_path)
+			check_move_jump(self, chess_field, avialable_fields,
+			                check_white, check_black, -1, 1,
+			                king_attack_path)
+		self.moves = avialable_fields
 		#Dopisanie możliwych ruchów do listy pól potencjalnie 
-		#szachowanych
-		if self.type=="white":
+		#szachowanych.
+		if self.type == "white":
 			for move in self.moves:
 				check_white.append(move)
-		elif self.type=="black":
+		elif self.type == "black":
 			for move in self.moves:
 				check_black.append(move)
