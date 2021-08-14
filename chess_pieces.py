@@ -348,7 +348,7 @@ class Pawn(Sprite):
 						#pól potencjalnie szachowanych.
 						else:
 							check_black.append(chess_field.name)
-					elif (chess_field.vertical == self.vertical
+					elif (chess_field.vertical == self.vertical-1
 					and chess_field.horizontal == self.horizontal-1): 
 						if chess_field.occupied != None:
 							if chess_field.occupied.type != self.type:

@@ -15,7 +15,7 @@ def play_chess():
 	screen = pygame.display.set_mode((settings.screen_width,
                                      settings.screen_height))
 	pygame.display.set_caption("Chess")
-	#Lista pól, które mogą być atakowene przez figury danego koloru.
+	#Lista pól, które mogą być atakowane przez figury danego koloru.
 	check_white = []
 	check_black = []	
 	#Tworzenie szachownicy i figur.
